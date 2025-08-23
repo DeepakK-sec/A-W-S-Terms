@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Terms Homepage</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin: 20px 0;
+      color: #222;
+    }
+    .card {
+      display: inline-block;
+      width: 250px;
+      margin: 15px;
+      padding: 20px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: left;
+      transition: transform 0.2s ease-in-out;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+      color: #0066cc;
+    }
+    .card p {
+      font-size: 14px;
+      margin: 0 0 10px;
+      color: #666;
+    }
+    .card a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #ff6600;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to My AWS Terms Site</h1>
+  <p>Select a section below:</p>
+
+  <div id="folderCards"></div>
+
+  <script>
+    const user = "deepakk-sec";
+    const repo = "A-W-S-Terms";
+
+    // 📌 Friendly folder descriptions
+    const folderInfo = {
+      "cloudterms": {
+        title: "Cloud Terms",
+        description: "50+ important cloud computing definitions explained simply."
+      },
+      "securitynotes": {
+        title: "Security Notes",
+        description: "Quick notes for SOC and AWS security essentials."
+      }
+      // Add more folders here as you create them
+    };
+
+    // Get top-level repo contents
+    fetch(`https://api.github.com/repos/${user}/${repo}/contents/`)
+      .then(response => response.json())
+      .then(data => {
+        const folderCards = document.getElementById("folderCards");
+
+        data.forEach(item => {
+          if (item.type === "dir") {
+            fetch(`https://api.github.com/repos/${user}/${repo}/contents/${item.name}`)
+              .then(res => res.json())
+              .then(files => {
+                const hasIndex = files.some(f => f.name.toLowerCase() === "index.html");
+                if (hasIndex) {
+                  const info = folderInfo[item.name] || { 
+                    title: item.name, 
+                    description: "No description available." 
+                  };
+                  let card = document.createElement("div");
+                  card.className = "card";
+                  card.innerHTML = `
+                    <h2>${info.title}</h2>
+                    <p>${info.description}</p>
+                    <a href="${item.name}/">Visit →</a>
+                  `;
+                  folderCards.appendChild(card);
+                }
+              });
+          }
+        });
+      })
+      .catch(error => {
+        console.error("Error fetching repo contents:", error);
+      });
+  </script>
+</body>
+</html>
